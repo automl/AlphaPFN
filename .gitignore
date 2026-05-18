@@ -1,0 +1,29 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+dist/
+build/
+
+# checkpoints (workspace local; eventually fetched from HF Hub)
+*.pt
+*.pth
+*.safetensors
+final_models/
+checkpoints/
+
+# uv venv
+.venv/
+
+# wandb / experiment tracking
+wandb/
+
+# editors
+.vscode/
+.idea/
+
+# notebooks
+.ipynb_checkpoints/

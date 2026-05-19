@@ -28,10 +28,17 @@ botorch = [
     { name = "botorch", version = "0.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "botorch", version = "0.17.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
+training = [
+    { name = "cloudpickle" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "tqdm" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "botorch", marker = "extra == 'botorch'", specifier = ">=0.15.0" },
+    { name = "cloudpickle", marker = "extra == 'training'" },
     { name = "einops" },
     { name = "gpytorch", specifier = ">=1.5.0" },
     { name = "networkx" },
@@ -39,10 +46,12 @@ requires-dist = [
     { name = "packaging" },
     { name = "platformdirs" },
     { name = "safetensors" },
+    { name = "scipy", marker = "extra == 'training'" },
     { name = "torch", specifier = ">=1.9.0" },
+    { name = "tqdm", marker = "extra == 'training'" },
     { name = "typing-extensions" },
 ]
-provides-extras = ["botorch"]
+provides-extras = ["botorch", "training"]
 
 [[package]]
 name = "botorch"
@@ -88,6 +97,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/28/07/0e1b595021f74497677d4b7eba624e806622f0966920fd50e215444580f3/botorch-0.17.2.tar.gz", hash = "sha256:371461f35d882796a87e70ca9a529f31287f9ed984fd9ca3a1d311af58d3fa0c", size = 3747911, upload-time = "2026-03-05T01:08:55.605Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/69/69/1a6cd32cf55507987b34404714374feb008928a5a90de7d22c9027bf2baa/botorch-0.17.2-py3-none-any.whl", hash = "sha256:956d38fa6bf5e2094199e7a1631b26099d72d2d16066d5c4504dc6a0b4b989bd", size = 4566008, upload-time = "2026-03-05T01:08:53.688Z" },
+]
+
+[[package]]
+name = "cloudpickle"
+version = "3.1.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/fb/576f067976d320f5f0114a8d9fa1215425441bb35627b1993e5afd8111e5/cloudpickle-3.1.2.tar.gz", hash = "sha256:7fda9eb655c9c230dab534f1983763de5835249750e85fbcef43aaa30a9a2414", size = 22330, upload-time = "2025-11-03T09:25:26.604Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/88/39/799be3f2f0f38cc727ee3b4f1445fe6d5e4133064ec2e4115069418a5bb6/cloudpickle-3.1.2-py3-none-any.whl", hash = "sha256:9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a", size = 22228, upload-time = "2025-11-03T09:25:25.534Z" },
 ]
 
 [[package]]

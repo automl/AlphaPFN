@@ -8,12 +8,18 @@ __pycache__/
 dist/
 build/
 
-# checkpoints (workspace local; eventually fetched from HF Hub)
+# checkpoints (workspace local; fetched on demand)
 *.pt
 *.pth
 *.safetensors
 final_models/
 checkpoints/
+
+# training data corpora (workspace local; fetched on demand; ~250 GB each)
+data/
+data/**/*.tar.xz
+data/**/*.tar.zst
+data/**/*.sha256
 
 # uv venv
 .venv/

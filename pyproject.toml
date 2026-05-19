@@ -29,6 +29,7 @@ classifiers = [
 
 [project.optional-dependencies]
 botorch = ["botorch>=0.15.0"]
+training = ["tqdm", "cloudpickle", "scipy"]
 
 [tool.hatch.build]
 exclude = [

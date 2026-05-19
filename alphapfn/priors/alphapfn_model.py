@@ -1,9 +1,34 @@
-"""Inference-only symbols extracted from the original v18 direct prior.
+"""v18 direct (PES/MES/JES) prior — inference symbols + training scaffolding.
 
-Renamed from `priors/es_pfn2_gp_scen_v18_direct.py`. The direct
-checkpoints (PES/MES/JES) keep their pickled `SequentialEncoder`
-instances pointing at `alphapfn.model.encoders`, so this module is
-mostly a placeholder so that pickled `__module__` paths still resolve.
+Renamed from `priors/es_pfn2_gp_scen_v18_direct.py` on kislurm (566
+lines in the original).
+
+What's here:
+  - Inference symbols (`TASK_IDS`, `normalize`, `denormalize`,
+    `get_encoder`, `get_y_encoder_by_scenario`, the StyleEncoder /
+    StyleYEncoder classes re-exported from `base_model`). Pickled
+    direct checkpoints (`alpha_pfn_v1_{pes,mes,jes}`) reference these
+    via the module path at unpickle time. `style_encoder` /
+    `y_style_encoder` themselves are `None` for direct checkpoints
+    (confirmed empirically across PES/MES/JES corpora), so they only
+    need to be importable, not instantiable.
+
+What is NOT here (deliberate):
+  - The training-time `get_batch(...)` (~280 lines in the kislurm
+    source) was the live-datagen path that loaded a trained PPD
+    checkpoint and computed entropy reductions as training targets.
+    The published direct corpora ship those targets pre-computed in
+    each chunk's `target_y` tensor, and the training recipes always
+    use `--load_path`, so `prior.get_batch` is never called by the
+    offline training path.
+  - The kislurm `[:15_000_000]` cap on `dim2indices` (line 300 of the
+    source) — went with the live-datagen code that's not ported.
+  - The `from pfns4hpo_v2.esmodel import Predictor, PFNAcq, PFNAcqCombi`
+    line (used at line 322 of the source by the unported `get_batch`
+    to load a PPD model). The shim in `alphapfn/training/__init__.py`
+    aliases `pfns4hpo_v2.esmodel` to a stub that raises on
+    instantiation, so the import resolves at module-load time but any
+    accidental use triggers a clear error.
 """
 import math
 
@@ -14,7 +39,12 @@ from alphapfn.model.encoders import (
     NanHandlingEncoderStep,
     VariableNumFeaturesEncoderStep,
 )
-from alphapfn.priors.base_model import StyleEncoder, StyleYEncoder, _Y_NORM_BY_SCENARIO
+from alphapfn.priors.base_model import (
+    MAX_DIMS,
+    StyleEncoder,
+    StyleYEncoder,
+    _Y_NORM_BY_SCENARIO,
+)
 
 
 TASK_IDS = {

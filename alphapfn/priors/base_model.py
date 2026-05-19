@@ -1,9 +1,32 @@
-"""Inference-only symbols extracted from the original v18 PPD prior.
+"""v18 PPD prior — inference symbols + training-time scaffolding.
 
-Renamed from `priors/es_pfn2_gp_scen_v18_ppd.py`. Training-time code
-(get_batch, generate_trace, GP sampling, etc.) has been removed; this
-module retains only the symbols that pickled checkpoints reference at
-load time and the helpers needed at inference.
+Renamed from `priors/es_pfn2_gp_scen_v18_ppd.py` on kislurm (705 lines
+in the original).
+
+What's here:
+  - Inference symbols (`TASK_IDS`, `normalize`, `denormalize`,
+    `get_encoder`, `get_y_encoder`, `StyleEncoder`, `StyleYEncoder`,
+    `get_style_encoder`, `get_y_style_encoder`, the scenario-keyed
+    normalization tables `_Y_NORM_BY_SCENARIO` and
+    `_YSTYLE_NORM_BY_SCENARIO`). These are referenced by pickled
+    checkpoints when `torch.load`-ing them.
+  - The architecture-defining `MAX_DIMS` constant, kept for completeness.
+
+What is NOT here (deliberate):
+  - The training-time `get_batch(...)` (~270 lines in the kislurm
+    source) was the live-datagen path that consumed
+    `/work/dlclarge2/.../newdata_0305/90M_500RFF_scen7_simple.npz`.
+    The published alphapfn training recipes always pass `--load_path`,
+    which means `main.py:94-95` never falls through to
+    `prior.get_batch`. The function is unreachable from offline
+    training and is therefore not ported here. Re-generating the
+    prior corpora from raw GP samples is documented as out of scope
+    in the plan (`yes-right-a-plan-rosy-dragonfly.md`).
+  - `generate_trace`, `corner_check`, `sample_until_all_success`,
+    `flip_batch_fully_vectorized`, and similar GP-sampling helpers
+    are only called from `get_batch` and were dropped with it.
+  - All hardcoded `/work/dlclarge2/...` data paths.
+  - `import matplotlib`, `import submitit` (datagen-only deps).
 """
 import math
 
@@ -17,6 +40,13 @@ from alphapfn.model.encoders import (
     NanHandlingEncoderStep,
     VariableNumFeaturesEncoderStep,
 )
+
+
+# Maximum feature count per scenario. The model's encoder is built
+# with `num_features=MAX_DIMS[scenario]` (= 6 for scenario 7); the
+# pickled batches carry `x` tensors with per-batch gp_dim in
+# `[1, MAX_DIMS[scenario]]` and the y-encoder masks unused features.
+MAX_DIMS = [1, 2, 4, 6, 12, 1, 2, 6, 18, 7]
 
 
 TASK_IDS = {

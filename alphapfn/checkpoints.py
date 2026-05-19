@@ -19,9 +19,7 @@ from __future__ import annotations
 
 import os
 import shutil
-import sys
 import tempfile
-import urllib.request
 import zipfile
 from pathlib import Path
 
@@ -58,38 +56,10 @@ def _is_populated(version_dir: Path) -> bool:
     return (version_dir / _CANARY_PREDICTOR / _CANARY_FILE).exists()
 
 
-def _human_size(num_bytes: int) -> str:
-    size = float(num_bytes)
-    for unit in ("B", "KB", "MB", "GB"):
-        if size < 1024 or unit == "GB":
-            return f"{size:.1f} {unit}"
-        size /= 1024
-    return f"{size:.1f} GB"
-
-
 def _download(url: str, dest: Path) -> None:
-    """Stream a URL to `dest` with a single-line progress indicator on stderr."""
-    print(f"alphapfn: downloading {url}", file=sys.stderr)
-    with urllib.request.urlopen(url) as response:
-        total = int(response.headers.get("Content-Length", 0))
-        chunk = 1 << 20  # 1 MiB
-        written = 0
-        with open(dest, "wb") as out:
-            while True:
-                buf = response.read(chunk)
-                if not buf:
-                    break
-                out.write(buf)
-                written += len(buf)
-                if total > 0 and sys.stderr.isatty():
-                    pct = 100.0 * written / total
-                    print(
-                        f"\ralphapfn:   {_human_size(written)}/{_human_size(total)} ({pct:5.1f}%)",
-                        end="",
-                        file=sys.stderr,
-                    )
-        if sys.stderr.isatty():
-            print("", file=sys.stderr)  # newline after progress line
+    """Stream a URL to `dest`. Back-compat wrapper around _fetch._stream_download."""
+    from alphapfn._fetch import _stream_download
+    _stream_download(url, dest, label="alphapfn")
 
 
 def _download_and_extract(version: str, version_dir: Path) -> None:

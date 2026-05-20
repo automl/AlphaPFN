@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any, Optional
 
 import torch
-from safetensors.torch import load_file
 
 from alphapfn.model.bar_distribution import FullSupportBarDistribution
 from alphapfn.model.encoders import (
@@ -180,6 +179,11 @@ def load_predictor(
 
     with open(config_path) as f:
         cfg = json.load(f)
+    # Lazy import: `safetensors` is only required at actual checkpoint
+    # load time, not at `import alphapfn` time. This keeps the package
+    # usable in environments (e.g. kislurm login node) where safetensors
+    # isn't installed but the training/data path is exercised.
+    from safetensors.torch import load_file
     state_dict = load_file(str(weights_path))
 
     borders = state_dict["criterion.borders"]

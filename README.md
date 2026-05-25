@@ -1,36 +1,34 @@
 # $\alpha$-PFN: Fast Entropy Search via In-Context Learning
 
-Lightweight package for $\alpha$-PFN, a Prior-Fitted Network for fast entropy search. $\alpha$-PFN replaces the Gaussian Process surrogate in a Bayesian optimization loop with a single
-transformer forward pass: condition on observed $(X, y)$, score candidate
-points, optimize. Supported acquisitions: Predictive Entropy Search (`PES`), Max Value Entropy Search (`MES`), Joint-Entropy Search (`JES`).
+Lightweight package for $\alpha$-PFN, a Prior-Fitted Network for fast entropy search. Supported acquisitions: Predictive Entropy Search (PES), Max Value Entropy Search (MES), Joint-Entropy Search (JES).
 
-> To reproduce experiments from our ICML paper, please refer to the branch [`icml2026`](https://github.com/automl/AlphaPFN/tree/icml2026).
-
+> To reproduce our ICML paper experiments, see branch
+> [`icml2026`](https://github.com/automl/AlphaPFN/tree/icml2026).
 
 ## Install
 
 ```bash
-git clone <repo>
-cd alpha-pfn
+git clone https://github.com/automl/AlphaPFN
+cd AlphaPFN
 uv sync
 ```
 
-TODO: add on pypi.
+PyPI release: TODO.
 
 ## Quick start
 
-See `examples/bo_with_optimize_acqf.py`. The relevant snippet:
+A minimal BO loop driven by `botorch.optim.optimize_acqf`:
 
 ```python
 import torch
-from botorch.optim import optimize_acqf # need to install Botorch
+from botorch.optim import optimize_acqf  # needs botorch
 from alphapfn import AlphaPFN
 
 bounds = torch.stack([torch.zeros(d), torch.ones(d)]).double()
 acqf = AlphaPFN.from_pretrained(acquisition="JES")
 
 for step in range(num_steps):
-    # Standardize y; $\alpha$-PFN expects standardized targets.
+    # $\alpha$-PFN expects standardized targets.
     y_std = (y - y.mean()) / (y.std() + 1e-8)
     acqf.fit(X, y_std)
 
@@ -46,7 +44,8 @@ for step in range(num_steps):
     y = torch.cat([y, y_next.detach().double().reshape(1)])
 ```
 
-Run it:
+A runnable version lives at
+[`examples/bo_with_optimize_acqf.py`](examples/bo_with_optimize_acqf.py):
 
 ```bash
 .venv/bin/python examples/bo_with_optimize_acqf.py --acquisition JES --steps 15
@@ -56,7 +55,7 @@ Run it:
 
 ```python
 AlphaPFN.from_pretrained(
-    acquisition: str | None = None,            # one of "PES","MES","JES"
+    acquisition: str | None = None,            # or "MES","JES"
     version: str = "v1",
     *,
     load_base_model: bool = False,
@@ -65,34 +64,15 @@ AlphaPFN.from_pretrained(
 )
 ```
 
-Loading rules:
-
-- `EI` and `UCB` implicitly load the PPD base model (the acquisition is
-  computed in closed form from PPD logits).
-- `PES` / `MES` / `JES` load a separately-trained acquisition head; the
-  base model is loaded only if `load_base_model=True`.
-- `load_base_model=True`: TBD.
-
-The returned object is callable: `acqf(X)` with `X.shape == (b, 1, d)`
-returns acquisition values of shape `(b,)`. Calling
-`acqf.fit(train_X, train_Y)` must be called once before `forward`.
-
 The pretrained models assume:
 
-- **Maximization.** $\alpha$-PFN scores points for a *maximization*
-  objective. `f_best` is `train_Y.max()`, EI/UCB/PES/MES/JES all
-  return higher values for "better" inputs. To minimize $f$, pass
-  `-f(X)` to `fit` and negate the result.
-- **`X ⊂ [0, 1]^d`** — inputs are normalized to the unit cube. Out-of-cube
-  inputs silently produce nonsense logits (the encoder has zero training
-  signal outside that range). Rescale your search space to the unit
-  cube and rescale back when reporting results.
-- **`y` approximately standardized** — `|mean(y)| ≲ 0.5`, `|std(y) - 1| ≲ 0.5`.
-  Standardize before `fit`: `y_std = (y - y.mean()) / (y.std() + 1e-8)`.
+- **Maximization.** $f_\text{best} = $ `train_Y.max()`. To minimize $f$,
+  fit on `-f(X)` and negate. *Not checked* — silently wrong if you
+  forget.
+- **`X ⊂ [0, 1]^d`.** Rescale your search space; results outside the
+  cube are meaningless.
+- **`y` approximately standardized.** `|mean(y)| ≲ 0.5`, `|std(y) - 1| ≲ 0.5`.
+  Pre-standardize: `(y - y.mean()) / (y.std() + 1e-8)`.
 
-With `strict=True` (default) the cube and standardization conditions
-are checked on every `fit` and every `forward`; violations raise
-`ValueError`. The maximization assumption is **not** checked — it
-silently produces wrong results if you fit on a minimization-shaped
-objective. Pass `strict=False` if you intentionally use out-of-cube
-inputs or non-standard targets.
+The cube and standardization checks fire on every `fit` and `forward`
+under `strict=True` (default); pass `strict=False` to disable.

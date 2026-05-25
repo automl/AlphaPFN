@@ -9,4 +9,3 @@ self-contained (its own README, scripts, and slurm wrappers):
 | 2. Model training  | [`model_training/`](model_training/)   |
 | 3. BO evaluation   | [`bo_evaluation/`](bo_evaluation/)  TODO   |
 | 4. Plot results    | [`plot_results/`](plot_results/)       |
-

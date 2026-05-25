@@ -2,10 +2,9 @@
 
 Lightweight package for $\alpha$-PFN, a Prior-Fitted Network for fast entropy search. $\alpha$-PFN replaces the Gaussian Process surrogate in a Bayesian optimization loop with a single
 transformer forward pass: condition on observed $(X, y)$, score candidate
-points, optimize. Supported acquisitions:
+points, optimize. Supported acquisitions: Predictive Entropy Search (`PES`), Max Value Entropy Search (`MES`), Joint-Entropy Search (`JES`).
 
-- Predictive Entropy Search (`PES`), Max Value Entropy Search (`MES`), Joint-Entropy Search (`JES`).
-- `EI`, `UCB` (computed analytically from the PPD bar-distribution),
+> To reproduce experiments from our ICML paper, please refer to the branch [`icml2026`](https://github.com/automl/AlphaPFN/tree/icml2026).
 
 
 ## Install
@@ -57,7 +56,7 @@ Run it:
 
 ```python
 AlphaPFN.from_pretrained(
-    acquisition: str | None = None,            # one of "EI","UCB","PES","MES","JES"
+    acquisition: str | None = None,            # one of "PES","MES","JES"
     version: str = "v1",
     *,
     load_base_model: bool = False,

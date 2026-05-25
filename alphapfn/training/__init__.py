@@ -60,7 +60,7 @@ def _install_shim() -> None:
     }
     for name, mod in aliases.items():
         # Idempotent: don't clobber if the user has already mapped these
-        # (e.g. from `scripts/export_checkpoints.py` which installs its
+        # (e.g. from `model_training/export_checkpoints.py` which installs its
         # own subset of aliases).
         sys.modules.setdefault(name, mod)
 

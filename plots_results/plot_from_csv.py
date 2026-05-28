@@ -94,10 +94,10 @@ DATASETS: dict[str, dict] = {
         # Panels are (benchmark, noise, display_label, share_y_group)
         # share_y_group: panels with the same int share a y-axis
         "panels": [
-            ("Hartmann4D", "0.316", r"Hartmann (4D), $\sigma=0.316$", 0),
-            ("Hartmann4D", "0.5",   r"Hartmann (4D), $\sigma=0.5$",   0),
-            ("Hartmann6D", "0.316", r"Hartmann (6D), $\sigma=0.316$", 1),
-            ("Hartmann6D", "0.5",   r"Hartmann (6D), $\sigma=0.5$",   1),
+            ("Hartmann4D", "0.316", r"Hartmann (4D), $\sigma_{n}=0.316$", 0),
+            ("Hartmann4D", "0.5",   r"Hartmann (4D), $\sigma_{n}=0.5$",   0),
+            ("Hartmann6D", "0.316", r"Hartmann (6D), $\sigma_{n}=0.316$", 1),
+            ("Hartmann6D", "0.5",   r"Hartmann (6D), $\sigma_{n}=0.5$",   1),
         ],
     },
     "hpob": {

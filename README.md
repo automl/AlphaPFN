@@ -55,24 +55,31 @@ A runnable version lives at
 
 ```python
 AlphaPFN.from_pretrained(
-    acquisition: str | None = None,            # or "MES","JES"
+    acquisition: str | None = None,   # or "MES", "JES"
     version: str = "v1",
     *,
     load_base_model: bool = False,
     ucb_beta: float = 2.0,
-    strict: bool = True,
+    strict: bool = True,              # Pass strict=False to skip the input-range and standardization checks.
 )
 ```
 
-The pretrained models assume:
+Before fitting, prepare your data so that:
+  - You are maximizing. To minimize instead, negate your objective.
+    This is NOT checked, so forgetting it silently gives wrong results.
+  - Each input feature is rescaled to lie between 0 and 1.
+  - Targets are roughly standardized (subtract the mean, divide by the std).
 
-- **Maximization.** $f_\text{best} = $ `train_Y.max()`. To minimize $f$,
-  fit on `-f(X)` and negate. *Not checked* — silently wrong if you
-  forget.
-- **`X ⊂ [0, 1]^d`.** Rescale your search space; results outside the
-  cube are meaningless.
-- **`y` approximately standardized.** `|mean(y)| ≲ 0.5`, `|std(y) - 1| ≲ 0.5`.
-  Pre-standardize: `(y - y.mean()) / (y.std() + 1e-8)`.
 
-The cube and standardization checks fire on every `fit` and `forward`
-under `strict=True` (default); pass `strict=False` to disable.
+# Cite
+
+```latex
+@inproceedings{
+  rakotoarison2026alphapfn,
+  title={{$\alpha$}-PFN: Fast Entropy Search via In-Context Learning},
+  author={Rakotoarison, Herilalaina and Adriaensen, Steven and Viering, Tom and Hvarfner, Carl and M{\"u}ller, Samuel and Hutter, Frank and Bakshy, Eytan},
+  booktitle={Forty-third International Conference on Machine Learning},
+  year={2026},
+  url={https://openreview.net/forum?id=7Oonij8oLU}
+}
+```

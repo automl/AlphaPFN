@@ -12,7 +12,7 @@ description = "Fast Entropy Search via In-Context Learning"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "torch>=1.9.0",
+    "torch>=2.0.0",
     "numpy>=1.21.2,<2.0",
     "einops",
     "networkx",

@@ -29,7 +29,7 @@ from alphapfn.checkpoints import ensure_checkpoints
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 # Dev convenience: if running from a clone with a populated
-# checkpoints/<version>/ tree (e.g. produced by scripts/export_checkpoints.py),
+# checkpoints/<version>/ tree (e.g. produced by model_training/export_checkpoints.py),
 # prefer it over the user cache. Falls back to the cache otherwise.
 REPO_CHECKPOINT_ROOT = REPO_ROOT / "checkpoints"
 

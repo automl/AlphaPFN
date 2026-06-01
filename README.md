@@ -6,7 +6,7 @@
 [![Paper](https://img.shields.io/badge/Paper-OpenReview-b31b1b.svg)](https://openreview.net/forum?id=7Oonij8oLU)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/automl/AlphaPFN/blob/main/examples/quickstart.ipynb)
 
-**$\alpha$-PFN** is a Prior-Fitted Network that amortizes information-theoretic acquisition functions for Bayesian Optimization. It replaces the slow Monte-Carlo sampling used by classical entropy-search methods with a single transformer forward pass — yielding **1.6× – 70× speed-ups** over fully-Bayesian GP entropy search while matching its optimization quality. Drop-in compatible with `botorch.optim.optimize_acqf`. Supported acquisitions: **PES**, **MES**, **JES**.
+**$\alpha$-PFN** is a Prior-Fitted Network that amortizes information-theoretic acquisition functions. Supported acquisition functions: Predictive Entropy Search (PES), Max-value Entropy Search (MES), and Joint Entropy Search (JES). 
 
 <p align="center">
   <img src="images/hero.gif" alt="Traditional GP-based Entropy Search samples optima via RFF and averages conditional entropies over N MC samples; α-PFN approximates the same acquisition in a single transformer forward pass.">

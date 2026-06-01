@@ -8,4 +8,5 @@ Public surface:
 """
 from alphapfn.api import AlphaPFN, ALLOWED_ACQUISITIONS
 
-__all__ = ["AlphaPFN", "ALLOWED_ACQUISITIONS"]
+__version__ = "0.0.1"
+__all__ = ["AlphaPFN", "ALLOWED_ACQUISITIONS", "__version__"]

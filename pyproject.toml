@@ -5,12 +5,34 @@ build-backend = "hatchling.build"
 [project]
 name = "alphapfn"
 version = "0.0.1"
-authors = [
-    {name = "ML Freiburg"},
-]
-description = "Fast Entropy Search via In-Context Learning"
+description = "Fast Entropy Search via In-Context Learning (PFN-based amortized acquisition functions for Bayesian Optimization)"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
+authors = [
+    { name = "Herilalaina Rakotoarison" },
+    { name = "Steven Adriaensen" },
+    { name = "Tom Viering" },
+    { name = "Carl Hvarfner" },
+    { name = "Samuel Müller" },
+    { name = "Frank Hutter" },
+    { name = "Eytan Bakshy" },
+]
+maintainers = [
+    { name = "Herilalaina Rakotoarison", email = "rakoheri@ad.helsinki.fi" },
+    { name = "Steven Adriaensen", email = "adriaens@cs.uni-freiburg.de" },
+    { name = "Tom Viering", email = "t.j.viering@tudelft.nl" },
+]
+keywords = [
+    "bayesian-optimization",
+    "entropy-search",
+    "prior-fitted-networks",
+    "pfn",
+    "in-context-learning",
+    "amortized-inference",
+    "acquisition-function",
+    "pytorch",
+]
 dependencies = [
     "torch>=1.9.0",
     "numpy>=1.21.2,<2.0",
@@ -23,9 +45,24 @@ dependencies = [
     "platformdirs",
 ]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
 ]
+
+[project.urls]
+Homepage = "https://github.com/automl/AlphaPFN"
+Repository = "https://github.com/automl/AlphaPFN"
+Issues = "https://github.com/automl/AlphaPFN/issues"
+Paper = "https://openreview.net/forum?id=7Oonij8oLU"
 
 [project.optional-dependencies]
 botorch = ["botorch>=0.15.0"]
@@ -34,6 +71,8 @@ botorch = ["botorch>=0.15.0"]
 exclude = [
     "*.gz",
     "*.pt",
+    "images/*",
+    "examples/*.ipynb",
 ]
 
 [tool.hatch.build.targets.wheel]

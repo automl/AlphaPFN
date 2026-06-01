@@ -1,0 +1,69 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+title: "alphapfn: Fast Entropy Search via In-Context Learning"
+abstract: >-
+  Lightweight package for α-PFN, a Prior-Fitted Network that amortizes
+  information-theoretic acquisition functions (PES, MES, JES) for
+  Bayesian Optimization. α-PFN replaces the slow Monte-Carlo sampling
+  used by classical entropy-search methods with a single transformer
+  forward pass.
+type: software
+version: 0.0.1
+license: MIT
+repository-code: "https://github.com/automl/AlphaPFN"
+url: "https://github.com/automl/AlphaPFN"
+keywords:
+  - bayesian-optimization
+  - entropy-search
+  - prior-fitted-networks
+  - pfn
+  - in-context-learning
+  - amortized-inference
+  - acquisition-function
+authors:
+  - family-names: "Rakotoarison"
+    given-names: "Herilalaina"
+    email: "rakoheri@ad.helsinki.fi"
+    affiliation: "University of Helsinki"
+  - family-names: "Adriaensen"
+    given-names: "Steven"
+    email: "adriaens@cs.uni-freiburg.de"
+    affiliation: "University of Freiburg"
+  - family-names: "Viering"
+    given-names: "Tom"
+    email: "t.j.viering@tudelft.nl"
+    affiliation: "Delft University of Technology"
+  - family-names: "Hvarfner"
+    given-names: "Carl"
+    affiliation: "Meta"
+  - family-names: "Müller"
+    given-names: "Samuel"
+    affiliation: "Meta"
+  - family-names: "Hutter"
+    given-names: "Frank"
+    affiliation: "Prior Labs / ELLIS Institute Tübingen / University of Freiburg"
+  - family-names: "Bakshy"
+    given-names: "Eytan"
+    affiliation: "Meta"
+preferred-citation:
+  type: conference-paper
+  title: "α-PFN: Fast Entropy Search via In-Context Learning"
+  year: 2026
+  url: "https://openreview.net/forum?id=7Oonij8oLU"
+  conference:
+    name: "Forty-third International Conference on Machine Learning (ICML)"
+  authors:
+    - family-names: "Rakotoarison"
+      given-names: "Herilalaina"
+    - family-names: "Adriaensen"
+      given-names: "Steven"
+    - family-names: "Viering"
+      given-names: "Tom"
+    - family-names: "Hvarfner"
+      given-names: "Carl"
+    - family-names: "Müller"
+      given-names: "Samuel"
+    - family-names: "Hutter"
+      given-names: "Frank"
+    - family-names: "Bakshy"
+      given-names: "Eytan"

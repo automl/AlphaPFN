@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="α-PFN: Fast Entropy Search via In-Context Learning">
+  <meta name="description" content="α-PFN amortizes information-theoretic acquisition functions (PES/MES/JES) for Bayesian Optimization via a Prior-Fitted Network. A single transformer forward pass replaces slow Monte-Carlo entropy estimation, with speed-ups up to 50×.">
+  <meta name="keywords" content="bayesian-optimization, entropy-search, prior-fitted-networks, pfn, in-context-learning, amortized-inference, acquisition-function, joint-entropy-search, max-value-entropy-search, predictive-entropy-search, ICML 2026">
+  <meta name="author" content="Herilalaina Rakotoarison, Steven Adriaensen, Tom Viering, Carl Hvarfner, Samuel Müller, Frank Hutter, Eytan Bakshy">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="AutoML, University of Freiburg">
+  <meta property="og:title" content="α-PFN: Fast Entropy Search via In-Context Learning">
+  <meta property="og:description" content="A single transformer forward pass replaces Monte-Carlo entropy estimation in Bayesian Optimization. Up to 50× faster, with a BoTorch-compatible acquisition.">
+  <meta property="og:url" content="https://automl.github.io/AlphaPFN/">
+  <meta property="og:image" content="https://automl.github.io/AlphaPFN/static/images/hero.gif">
+  <meta property="og:image:alt" content="α-PFN amortizes entropy search via a single transformer forward pass">
+  <meta property="article:published_time" content="2026-06-01T00:00:00.000Z">
+  <meta property="article:author" content="Herilalaina Rakotoarison">
+  <meta property="article:section" content="Research">
+  <meta property="article:tag" content="Bayesian Optimization">
+  <meta property="article:tag" content="Prior-Fitted Networks">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="α-PFN: Fast Entropy Search via In-Context Learning">
+  <meta name="twitter:description" content="A single transformer forward pass replaces Monte-Carlo entropy estimation in Bayesian Optimization. Up to 50× faster.">
+  <meta name="twitter:image" content="https://automl.github.io/AlphaPFN/static/images/hero.gif">
+  <meta name="twitter:image:alt" content="α-PFN amortizes entropy search via a single transformer forward pass">
+
+  <!-- Academic/Research Specific -->
+  <meta name="citation_title" content="α-PFN: Fast Entropy Search via In-Context Learning">
+  <meta name="citation_author" content="Rakotoarison, Herilalaina">
+  <meta name="citation_author" content="Adriaensen, Steven">
+  <meta name="citation_author" content="Viering, Tom">
+  <meta name="citation_author" content="Hvarfner, Carl">
+  <meta name="citation_author" content="Müller, Samuel">
+  <meta name="citation_author" content="Hutter, Frank">
+  <meta name="citation_author" content="Bakshy, Eytan">
+  <meta name="citation_publication_date" content="2026">
+  <meta name="citation_conference_title" content="International Conference on Machine Learning (ICML)">
+  <meta name="citation_pdf_url" content="https://openreview.net/pdf?id=7Oonij8oLU">
+
+  <!-- Additional SEO -->
+  <meta name="theme-color" content="#D1495B">
+  <meta name="msapplication-TileColor" content="#D1495B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://ajax.googleapis.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+  <title>α-PFN: Fast Entropy Search via In-Context Learning | ICML 2026</title>
+
+  <!-- Favicon (AutoML.org logo) -->
+  <link rel="icon" type="image/png" href="static/images/automl-logo.png">
+  <link rel="apple-touch-icon" href="static/images/automl-logo.png">
+
+  <!-- Critical CSS -->
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <!-- Non-critical CSS -->
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  </noscript>
+
+  <!-- Code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/languages/python.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', () => { if (window.hljs) hljs.highlightAll(); });</script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Defer non-critical JavaScript -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+
+  <!-- Local page styling -->
+  <style>
+    .feature-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1.25rem 1.25rem;
+      height: 100%;
+    }
+    .feature-card .feature-icon {
+      font-size: 1.6rem;
+      color: #D1495B;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card h3 { font-weight: 700; font-size: 1.05rem; margin: 0 0 0.4rem 0; }
+    .feature-card p  { font-size: 0.95rem; color: #4b5563; margin: 0; }
+    pre.code-block {
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 1rem 1.1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    pre.code-block code.hljs { background: transparent; padding: 0; }
+    .pip-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 0.55rem 1rem;
+      border-radius: 9999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      margin: 0.4rem 0.25rem 0 0;
+    }
+    .copy-btn {
+      background: transparent;
+      border: 0;
+      color: #9ba3af;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .copy-btn:hover { color: #fff; }
+    .figure-caption {
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-top: 0.4rem;
+    }
+    .author-name { color: inherit; text-decoration: underline; text-decoration-color: rgba(0,0,0,0.2); text-underline-offset: 3px; }
+    .publication-title { line-height: 1.18; margin-bottom: 1.3rem !important; }
+    a.cite {
+      color: #D1495B;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.78em;
+      vertical-align: super;
+      line-height: 0;
+      margin-left: 0.05em;
+      white-space: nowrap;
+    }
+    a.cite:hover { text-decoration: underline; }
+    :target { scroll-margin-top: 1rem; }
+    html { scroll-behavior: smooth; }
+    .results-grid img { width: 100%; height: auto; }
+    .section.is-light h2 { color: #1f2937; }
+    .hero-asset { max-width: 760px; margin: 0 auto; display: block; border-radius: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <main id="main-content">
+
+  <!-- =============== HERO =============== -->
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">
+              $\alpha$-PFN: Fast Entropy Search<br>
+              via In-Context Learning
+            </h1>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><span class="author-name">Herilalaina Rakotoarison</span><sup>1*</sup>,</span>
+              <span class="author-block"><span class="author-name">Steven Adriaensen</span><sup>2*</sup>,</span>
+              <span class="author-block"><span class="author-name">Tom Viering</span><sup>3*</sup>,</span><br>
+              <span class="author-block"><span class="author-name">Carl Hvarfner</span><sup>4</sup>,</span>
+              <span class="author-block"><span class="author-name">Samuel Müller</span><sup>4</sup>,</span>
+              <span class="author-block"><span class="author-name">Frank Hutter</span><sup>5,6,2</sup>,</span>
+              <span class="author-block"><span class="author-name">Eytan Bakshy</span><sup>4</sup></span>
+            </div>
+
+            <div class="is-size-5 publication-authors" style="margin-top: 0.6rem;">
+              <span class="author-block"><sup>1</sup>University of Helsinki &nbsp;·&nbsp;</span>
+              <span class="author-block"><sup>2</sup>University of Freiburg &nbsp;·&nbsp;</span>
+              <span class="author-block"><sup>3</sup>Delft University of Technology &nbsp;·&nbsp;</span>
+              <span class="author-block"><sup>4</sup>Meta &nbsp;·&nbsp;</span>
+              <span class="author-block"><sup>5</sup>Prior Labs &nbsp;·&nbsp;</span>
+              <span class="author-block"><sup>6</sup>ELLIS Institute Tübingen</span>
+              <br>
+              <span class="author-block" style="font-weight:600; margin-top:0.4rem; display:inline-block;">
+                <sup>*</sup>Equal contribution &nbsp;·&nbsp; ICML 2026
+              </span>
+            </div>
+
+            <!-- CTA buttons -->
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <span class="link-block">
+                  <a href="https://openreview.net/forum?id=7Oonij8oLU" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://github.com/automl/AlphaPFN" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://colab.research.google.com/github/automl/AlphaPFN/blob/main/examples/quickstart.ipynb" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-google"></i></span>
+                    <span>Colab</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============== TEASER (hero gif) =============== -->
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <img src="static/images/hero.gif" class="hero-asset"
+             alt="Traditional GP-based Entropy Search samples optima via RFF and averages conditional entropies over N MC samples; α-PFN approximates the same acquisition in a single transformer forward pass.">
+        <h2 class="subtitle has-text-centered" style="margin-top: 0.8rem;">
+          GP-based entropy search averages conditional entropies over <em>N</em> Monte-Carlo optimum samples.
+          <strong>$\alpha$-PFN</strong> approximates the same acquisition in a single transformer forward pass.
+        </h2>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============== ABSTRACT =============== -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Information-theoretic acquisition functions such as Entropy Search (ES) offer a principled
+              exploration–exploitation framework for Bayesian optimization (BO). However, their practical
+              implementation relies on complicated and slow approximations — typically a Monte-Carlo estimation
+              of the information gain. This complexity can introduce numerical errors and requires specialized,
+              hand-crafted implementations.
+            </p>
+            <p>
+              We propose a two-stage amortization strategy that learns to approximate entropy-search-based
+              acquisition functions using Prior-data Fitted Networks (PFNs) in a single forward pass. A first
+              PFN is trained to be conditioned on information about the optima; second, the <strong>$\alpha$-PFN</strong>
+              is trained to predict the expected information gain by training on information gains measured
+              with the first PFN. The $\alpha$-PFN offers a flexible learned approximation that replaces the
+              complex heuristic approximations with a single forward pass per candidate, enabling rapid and
+              extensible acquisition evaluation.
+            </p>
+            <p>
+              Empirically, our approach is competitive with state-of-the-art entropy search implementations on
+              synthetic and real-world benchmarks, while accelerating the different entropy search variants
+              across all our experiments — with speed-ups of <strong>up to 50&times;</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============== 30-SECOND QUICK START =============== -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Try it in 30 seconds</h2>
+      <p class="has-text-centered" style="margin-bottom: 1rem;">
+        <span class="pip-pill">
+          <i class="fas fa-terminal"></i>
+          <span id="pip-cmd">pip install AlphaPFN</span>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('pip install AlphaPFN')" title="Copy">
+            <i class="fas fa-copy"></i>
+          </button>
+        </span>
+      </p>
+
+      <p class="has-text-centered" style="color:#6b7280; margin-bottom:1.2rem;">
+        Drop $\alpha$-PFN into any BoTorch<a class="cite" href="#ref-8">[8]</a> loop. The model <em>is</em> the acquisition function:
+      </p>
+
+<pre class="code-block"><code class="language-python">import torch
+from botorch.optim import optimize_acqf
+from botorch.test_functions import Hartmann
+from alphapfn import AlphaPFN
+
+# 1. Objective on the unit cube. α-PFN maximizes; `negate=True` flips Hartmann's sign.
+hartmann = Hartmann(dim=6, negate=True)
+
+# 2. Initial design.
+torch.manual_seed(0)
+d, n_init, num_steps = 6, 6, 30
+X = torch.rand(n_init, d, dtype=torch.double)
+y = hartmann(X)
+bounds = torch.stack([torch.zeros(d), torch.ones(d)]).double()
+
+# 3. Load the pretrained acquisition; checkpoints download on first call.
+acqf = AlphaPFN.from_pretrained(acquisition="JES")
+
+# 4. BO loop. Exactly the same as any BoTorch acquisition.
+for step in range(num_steps):
+    acqf.fit(X, y)
+    X_next, _ = optimize_acqf(acqf, bounds=bounds, q=1,
+                              num_restarts=10, raw_samples=128)
+    y_next = hartmann(X_next.squeeze(0))
+    X = torch.cat([X, X_next.detach().double()])
+    y = torch.cat([y, y_next.detach().double().reshape(1)])
+    print(f"step {step+1:>2}: best so far = {y.max().item():.4f}")
+</code></pre>
+
+      <p class="has-text-centered" style="margin-top: 1rem;">
+        Entropy-search heads: <code>"PES"</code>, <code>"MES"</code>, <code>"JES"</code>.
+        <code>"EI"</code> and <code>"UCB"</code> are also supported.
+        Full notebook on
+        <a href="https://colab.research.google.com/github/automl/AlphaPFN/blob/main/examples/quickstart.ipynb" target="_blank">Colab</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- =============== METHOD =============== -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Method</h2>
+
+      <div class="content has-text-justified" style="max-width: 880px; margin: 0 auto;">
+        <p>
+          Entropy search<a class="cite" href="#ref-1">[1]</a> acquisitions all share the form
+        </p>
+        $$
+          \alpha_{\mathrm{ES}}(x, D) \;=\;
+          H\!\bigl(p(y \mid D, x)\bigr)
+          \;-\;
+          \mathbb{E}_{I \sim p(I \mid D)}\!\Bigl[\,H\!\bigl(p(y \mid D, x, I)\bigr)\Bigr],
+        $$
+        <p>
+          where $I$ is the conditioning information about the optimum:
+          $I = x^\star$ for <strong>PES</strong><a class="cite" href="#ref-2">[2]</a>,
+          $I = f^\star$ for <strong>MES</strong><a class="cite" href="#ref-3">[3]</a>,
+          and $I = (x^\star, f^\star)$ for <strong>JES</strong><a class="cite" href="#ref-4">[4]</a><a class="cite" href="#ref-5">[5]</a>.
+          The original entropy-search formulation conditions on $x^\star$ alone<a class="cite" href="#ref-1">[1]</a>.
+          In practice both terms are intractable. $p(y \mid D, x, I)$ has no closed form, and the outer
+          expectation requires sampling optima from $p(I \mid D)$ via random Fourier features<a class="cite" href="#ref-9">[9]</a>.
+          Classical implementations replace one expensive intractability with another, stacking moment matching,
+          local constraints and Monte-Carlo averaging on top of each other.
+        </p>
+
+        <p>
+          $\alpha$-PFN replaces the two intractable pieces with <strong>two PFNs</strong>, trained once and
+          reused at every BO step.
+        </p>
+
+        <p>
+          <strong>1. The base PFN, amortizing the conditional posterior.</strong>
+          A first transformer is trained on millions of GP samples (with their true $x^\star, f^\star$
+          precomputed via RFF<a class="cite" href="#ref-9">[9]</a>) to predict
+          $q(y \mid D, x, I) \;\approx\; p(y \mid D, x, I)$
+          in a single forward pass, for any subset $I \subseteq \{x^\star, f^\star\}$.
+          Because $q$ is a discretized PPD (Riemann distribution)<a class="cite" href="#ref-6">[6]</a>, its entropy
+          $H(q(y \mid D, x, I))$ is closed-form. This already collapses every per-sample evaluation in the
+          inner term of the equation above into one forward pass (see the <em>left panel</em> of the figure).
+        </p>
+
+        <p>
+          <strong>2. The $\alpha$-PFN, amortizing the outer expectation.</strong>
+          The key is a train/inference asymmetry. At <em>training</em> time, every synthetic dataset
+          comes with its own precomputed optimum $I$ (from the RFF sample<a class="cite" href="#ref-9">[9]</a>),
+          so the realized information gain
+          $$ H\!\bigl(q(y \mid D, x)\bigr) \;-\; H\!\bigl(q(y \mid D, x, I)\bigr) $$
+          is a closed-form scalar and can be used as a regression <em>target</em> for that $(D, x)$
+          (<em>middle panel</em> of the figure). The $\alpha$-PFN itself only sees $(D, x)$, never $I$,
+          and outputs a Riemann distribution over this information gain.
+          Because each training pair $(D, x)$ is paired with a single random draw of $I$, the standard
+          PFN training argument<a class="cite" href="#ref-6">[6]</a> applies: fitting these targets
+          makes the predictive mean converge to
+          $\mathbb{E}_{I \sim p(I \mid D)}\!\left[\,H(q(y \mid D, x)) - H(q(y \mid D, x, I))\,\right]$,
+          which is exactly the entropy-search acquisition. At <em>inference</em> time the optimum information is no longer needed:
+          a single forward pass on $(D, x)$ returns the acquisition value, with the expectation over $I$
+          already absorbed into the model weights (<em>right panel</em>).
+        </p>
+
+        <p style="color:#6b7280; font-size:0.95rem;">
+          One $\alpha$-PFN is trained per ES variant; the base PFN is shared. A fully-Bayesian treatment
+          comes for free, since hyperpriors are integrated out at train time.
+        </p>
+      </div>
+
+      <figure style="margin-top: 1.5rem;">
+        <img src="static/images/paper/ESPFN_Pipeline_figure_nobox_hres.png"
+             alt="α-PFN training pipeline. Left: the base PFN learns p(y | D, x, I) for any I = subset of {x*, f*}. Middle: α-PFN is trained on information gains computed against the base PFN, with the precomputed optimum used only as the training target. Right: at test time α-PFN evaluates the full acquisition in a single forward pass."
+             style="width:100%; max-width:1100px; display:block; margin:0 auto;">
+        <figcaption class="figure-caption">
+          <strong>Left:</strong> the base PFN amortizes the conditional posterior $p(y \mid D, x, I)$.
+          <strong>Middle:</strong> $\alpha$-PFN is trained on information gains produced by the base PFN, with the precomputed $I$ used as a training target.
+          <strong>Right:</strong> at test time, $\alpha$-PFN evaluates the entropy-search acquisition in a single forward pass, with no MC sampling.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- =============== RESULTS =============== -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Results</h2>
+      <p class="has-text-centered" style="color:#4b5563; margin-bottom: 1.5rem;">
+        $\alpha$-PFN matches hand-crafted entropy-search baselines across synthetic and real-world benchmarks.
+      </p>
+
+      <div class="results-grid">
+        <figure style="margin-bottom: 2rem;">
+          <img src="static/images/paper/synthetic_v1_inference_regret_main_text_crc.png"
+               alt="Inference regret on synthetic GP benchmarks. α-PFN (JES/MES/PES) matches the BoTorch MC baselines.">
+          <figcaption class="figure-caption">
+            <strong>Synthetic GP benchmarks.</strong> Inference regret across BO iterations.
+            $\alpha$-PFN matches BoTorch's<a class="cite" href="#ref-8">[8]</a> MC implementations of JES, MES, and PES.
+          </figcaption>
+        </figure>
+
+        <figure style="margin-bottom: 2rem;">
+          <img src="static/images/paper/hpob_ranking_main_text_crc.png"
+               alt="HPO-B mean rank vs BO iteration. α-PFN ranks competitively with classical entropy-search baselines.">
+          <figcaption class="figure-caption">
+            <strong>HPO-B.</strong> Mean rank across hyperparameter-optimization tasks. $\alpha$-PFN
+            matches classical entropy-search methods on real HPO benchmarks.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img src="static/images/paper/lcbench_accuracy_v1_main_text_crc.png"
+               alt="LCBench accuracy across BO iterations.">
+          <figcaption class="figure-caption">
+            <strong>LCBench.</strong> Accuracy on neural-network hyperparameter-tuning tasks.
+          </figcaption>
+        </figure>
+      </div>
+
+      <p class="has-text-centered" style="margin-top: 1.5rem; color:#374151;">
+        See the <a href="https://openreview.net/pdf?id=7Oonij8oLU" target="_blank">paper</a> for full benchmarks,
+        ablations, and runtime tables.
+      </p>
+    </div>
+  </section>
+
+  <!-- =============== RUNTIMES =============== -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Runtimes</h2>
+      <p class="has-text-centered" style="color:#4b5563; margin-bottom: 1.2rem;">
+        Speedup vs. the fully-Bayesian GP–MCMC baseline across 15 BO tasks (2D&nbsp;–&nbsp;16D, continuous and discrete).
+        Each row shows the speedup for MES, JES, and PES on that task; rows are sorted from worst-case to best-case speedup.
+      </p>
+      <figure>
+        <img src="static/images/runtime_speedup.png"
+             alt="Horizontal grouped-bar chart of α-PFN runtime speedup over GP-MCMC across 15 BO tasks, with MES/JES/PES bars per task, log x-axis, rows sorted by min speedup."
+             style="width:100%; max-width:950px; display:block; margin:0 auto;">
+        <figcaption class="figure-caption">
+          $\alpha$-PFN is consistently faster than the GP–MCMC baseline, from <strong>1.6&times;</strong> on the lowest-gain task
+          up to <strong>72&times;</strong> on the highest-dimensional discrete benchmark.
+          Speedups grow with task dimensionality and the cost of MC sampling.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- =============== REFERENCES =============== -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">References</h2>
+      <p class="has-text-centered" style="color:#4b5563; margin-bottom: 1.5rem;">
+        Selected works that $\alpha$-PFN builds on. The full bibliography is in the paper.
+      </p>
+
+      <div class="content" style="max-width: 880px; margin: 0 auto;">
+        <ol style="line-height: 1.55;">
+          <li id="ref-1">
+            P. Hennig and C. Schuler.
+            <a href="https://jmlr.org/papers/v13/hennig12a.html" target="_blank">Entropy search for information-efficient global optimization</a>.
+            <em>JMLR</em>, 2012.
+          </li>
+          <li id="ref-2">
+            J. M. Hernández-Lobato, M. W. Hoffman, and Z. Ghahramani.
+            <a href="https://papers.nips.cc/paper/5324-predictive-entropy-search-for-efficient-global-optimization-of-black-box-functions" target="_blank">Predictive entropy search for efficient global optimization of black-box functions</a>.
+            <em>NeurIPS</em>, 2014.
+          </li>
+          <li id="ref-3">
+            Z. Wang and S. Jegelka.
+            <a href="https://proceedings.mlr.press/v70/wang17e.html" target="_blank">Max-value entropy search for efficient Bayesian optimization</a>.
+            <em>ICML</em>, 2017.
+          </li>
+          <li id="ref-4">
+            C. Hvarfner, F. Hutter, and L. Nardi.
+            <a href="https://arxiv.org/abs/2206.04771" target="_blank">Joint entropy search for maximally-informed Bayesian optimization</a>.
+            <em>NeurIPS</em>, 2022.
+          </li>
+          <li id="ref-5">
+            B. Tu, A. Gandy, N. Kantas, and B. Shafei.
+            <a href="https://proceedings.neurips.cc/paper_files/paper/2022/hash/4086fe59dc3584708468fba0e459f6a7-Abstract-Conference.html" target="_blank">Joint entropy search for multi-objective Bayesian optimization</a>.
+            <em>NeurIPS</em>, 2022.
+          </li>
+          <li id="ref-6">
+            S. Müller, N. Hollmann, S. Pineda Arango, J. Grabocka, and F. Hutter.
+            <a href="https://openreview.net/forum?id=KSugKcbNf9" target="_blank">Transformers can do Bayesian inference</a>.
+            <em>ICLR</em>, 2022.
+          </li>
+          <li id="ref-7">
+            S. Müller, M. Feurer, N. Hollmann, and F. Hutter.
+            <a href="https://proceedings.mlr.press/v202/muller23a.html" target="_blank">PFNs4BO: In-context learning for Bayesian optimization</a>.
+            <em>ICML</em>, 2023.
+          </li>
+          <li id="ref-8">
+            M. Balandat, B. Karrer, D. R. Jiang, S. Daulton, B. Letham, A. G. Wilson, and E. Bakshy.
+            <a href="https://proceedings.neurips.cc/paper/2020/hash/f5b1b89d98b7286673128a5fb112cb9a-Abstract.html" target="_blank">BoTorch: A framework for efficient Monte-Carlo Bayesian optimization</a>.
+            <em>NeurIPS</em>, 2020.
+          </li>
+          <li id="ref-9">
+            A. Rahimi and B. Recht.
+            <a href="https://papers.nips.cc/paper/3182-random-features-for-large-scale-kernel-machines" target="_blank">Random features for large-scale kernel machines</a>.
+            <em>NeurIPS</em>, 2007.
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============== BIBTEX =============== -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+<pre id="bibtex-code"><code>@inproceedings{rakotoarison2026alphapfn,
+  title     = {{$\alpha$}-PFN: Fast Entropy Search via In-Context Learning},
+  author    = {Rakotoarison, Herilalaina and Adriaensen, Steven and Viering, Tom
+               and Hvarfner, Carl and M{\"u}ller, Samuel and Hutter, Frank and Bakshy, Eytan},
+  booktitle = {Forty-third International Conference on Machine Learning},
+  year      = {2026},
+  url       = {https://openreview.net/forum?id=7Oonij8oLU}
+}</code></pre>
+    </div>
+  </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content has-text-centered">
+            <p>
+              This page uses the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>
+              (adopted from <a href="https://nerfies.github.io" target="_blank">Nerfies</a>).
+              Source for this site is available on <a href="https://github.com/automl/AlphaPFN" target="_blank">GitHub</a>.
+            </p>
+            <p style="font-size: 0.9rem; color:#6b7280;">
+              Licensed under
+              <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MathJax for the few inline α / x* in headings/text -->
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+</body>
+</html>

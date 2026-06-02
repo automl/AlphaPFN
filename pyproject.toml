@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "alphapfn"
+name = "AlphaPFN"
 version = "0.0.1"
 description = "Fast Entropy Search via In-Context Learning (PFN-based amortized acquisition functions for Bayesian Optimization)"
 readme = "README.md"
@@ -19,9 +19,7 @@ authors = [
     { name = "Eytan Bakshy" },
 ]
 maintainers = [
-    { name = "Herilalaina Rakotoarison", email = "rakoheri@ad.helsinki.fi" },
-    { name = "Steven Adriaensen", email = "adriaens@cs.uni-freiburg.de" },
-    { name = "Tom Viering", email = "t.j.viering@tudelft.nl" },
+    { name = "Herilalaina Rakotoarison", email = "rkt.herilalaina@gmail.com" },
 ]
 keywords = [
     "bayesian-optimization",
@@ -73,6 +71,10 @@ exclude = [
     "*.pt",
     "images/*",
     "examples/*.ipynb",
+    ".slurm-test/",
+    "uv.lock",
+    ".gitignore",
+    ".cursorignore",
 ]
 
 [tool.hatch.build.targets.wheel]

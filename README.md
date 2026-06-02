@@ -1,6 +1,6 @@
 # $\alpha$-PFN: Fast Entropy Search via In-Context Learning
 
-[![PyPI version](https://img.shields.io/pypi/v/alphapfn.svg)](https://pypi.org/project/alphapfn/)
+[![PyPI version](https://img.shields.io/pypi/v/AlphaPFN.svg)](https://pypi.org/project/AlphaPFN/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Paper](https://img.shields.io/badge/Paper-OpenReview-b31b1b.svg)](https://openreview.net/forum?id=7Oonij8oLU)
@@ -18,7 +18,7 @@
 ## Install
 
 ```bash
-pip install "alphapfn[botorch]"
+pip install AlphaPFN
 ```
 
 Or from source:
@@ -26,14 +26,14 @@ Or from source:
 ```bash
 git clone https://github.com/automl/AlphaPFN
 cd AlphaPFN
-uv sync --extra botorch
+uv sync
 ```
 
 Pretrained checkpoints (~20 MB) download automatically on the first `from_pretrained` call and cache under `~/.cache/alphapfn/`.
 
 ## Quick start
 
-A self-contained 6D BO loop on Hartmann, using `botorch.optim.optimize_acqf`:
+A self-contained 6D BO loop on Hartmann, using `botorch.optim.optimize_acqf`. Requires the `[botorch]` extra — `pip install "AlphaPFN[botorch]"`:
 
 ```python
 import torch

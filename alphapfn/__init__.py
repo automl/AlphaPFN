@@ -6,7 +6,12 @@ Public surface:
     model.fit(train_X, train_Y)
     acq = model(X_test)
 """
-from alphapfn.api import AlphaPFN, ALLOWED_ACQUISITIONS
+from alphapfn.api import AlphaPFN, AlphaPFNPosteriorMean, ALLOWED_ACQUISITIONS
 
 __version__ = "0.0.1"
-__all__ = ["AlphaPFN", "ALLOWED_ACQUISITIONS", "__version__"]
+__all__ = [
+    "AlphaPFN",
+    "AlphaPFNPosteriorMean",
+    "ALLOWED_ACQUISITIONS",
+    "__version__",
+]

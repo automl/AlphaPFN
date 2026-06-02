@@ -33,28 +33,22 @@ Pretrained checkpoints (~20 MB) download automatically on the first `from_pretra
 
 ## Quick start
 
-A self-contained 2D BO loop on Branin, using `botorch.optim.optimize_acqf`:
+A self-contained 6D BO loop on Hartmann, using `botorch.optim.optimize_acqf`:
 
 ```python
-import math
 import torch
 from botorch.optim import optimize_acqf
+from botorch.test_functions import Hartmann
 from alphapfn import AlphaPFN
 
-# 1. Define the objective on the unit cube (α-PFN maximizes — we negate Branin).
-def branin(X):
-    x1 = 15.0 * X[..., 0] - 5.0
-    x2 = 15.0 * X[..., 1]
-    a, b, c = 1.0, 5.1 / (4 * math.pi**2), 5.0 / math.pi
-    r, s, t = 6.0, 10.0, 1.0 / (8 * math.pi)
-    return -(a * (x2 - b * x1**2 + c * x1 - r) ** 2
-             + s * (1 - t) * torch.cos(x1) + s)
+# 1. Objective on the unit cube (α-PFN maximizes — `negate=True` flips Hartmann's sign).
+hartmann = Hartmann(dim=6, negate=True)
 
 # 2. Initial design.
 torch.manual_seed(0)
-d, n_init, num_steps = 2, 5, 15
+d, n_init, num_steps = 6, 6, 30
 X = torch.rand(n_init, d, dtype=torch.double)
-y = branin(X)
+y = hartmann(X)
 bounds = torch.stack([torch.zeros(d), torch.ones(d)]).double()
 
 # 3. Load the pretrained acquisition; checkpoints download on first call.
@@ -62,10 +56,10 @@ acqf = AlphaPFN.from_pretrained(acquisition="JES")
 
 # 4. BO loop.
 for step in range(num_steps):
-    y_std = (y - y.mean()) / (y.std() + 1e-8)   # standardize targets
-    acqf.fit(X, y_std)
-    X_next, _ = optimize_acqf(acqf, bounds=bounds, q=1, num_restarts=5, raw_samples=128)
-    y_next = branin(X_next.squeeze(0))
+    acqf.fit(X, y)                            # fit() standardizes y internally
+    X_next, _ = optimize_acqf(acqf, bounds=bounds, q=1,
+                              num_restarts=10, raw_samples=128)
+    y_next = hartmann(X_next.squeeze(0))
     X = torch.cat([X, X_next.detach().double()])
     y = torch.cat([y, y_next.detach().double().reshape(1)])
     print(f"step {step+1:>2}: best so far = {y.max().item():.4f}")
@@ -91,9 +85,8 @@ Before fitting, prepare your data so that:
 - **You are maximizing.** To minimize instead, negate your objective.
   This is NOT checked, so forgetting it silently gives wrong results.
 - **Each input feature lies in `[0, 1]`.** Rescale your search space accordingly.
-- **Targets are roughly standardized** (subtract the mean, divide by the std).
 
-`strict=True` (default) validates the cube and standardization on every `fit`/`forward`; pass `strict=False` to skip.
+`fit()` standardizes targets internally (`standardize_y=True` by default) — pass raw $y$. Pass `standardize_y=False` if you have already standardized. `strict=True` (default) validates the unit-cube contract on every `fit`/`forward`; pass `strict=False` to skip.
 
 ## Cite
 

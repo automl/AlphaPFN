@@ -242,8 +242,25 @@ class AlphaPFN(AcquisitionFunction):
     # Fit (one-shot; stores the train data; no real "fitting" happens)
     # ------------------------------------------------------------------
 
-    def fit(self, train_X: Tensor, train_Y: Tensor) -> "AlphaPFN":
-        """Provide training context. Required before forward()."""
+    def fit(
+        self,
+        train_X: Tensor,
+        train_Y: Tensor,
+        *,
+        standardize_y: bool = True,
+    ) -> "AlphaPFN":
+        """Provide training context. Required before forward().
+
+        Args:
+            train_X: (n, d) inputs in [0, 1]^d.
+            train_Y: (n,) targets in the original scale.
+            standardize_y: When True (default), the targets are standardized
+                internally — the pretrained model assumes ~N(0, 1) targets,
+                but acquisition argmax is invariant under affine y-rescaling,
+                so callers don't need to standardize themselves. Pass
+                `standardize_y=False` if you have already standardized
+                (the strict-mode contract check then applies).
+        """
         if train_X.ndim != 2:
             raise ValueError(
                 f"train_X must be (n, d); got shape {tuple(train_X.shape)}"
@@ -260,11 +277,17 @@ class AlphaPFN(AcquisitionFunction):
                 f"{train_X.shape[0]} vs {train_Y.shape[0]}"
             )
         self._check_X_in_cube(train_X, where="fit")
-        self._check_y_standardized(train_Y)
+        if standardize_y:
+            if train_Y.numel() >= 2:
+                std = train_Y.std()
+                train_Y = (train_Y - train_Y.mean()) / (std + 1e-8)
+        else:
+            self._check_y_standardized(train_Y)
         self._train_X = train_X.detach()
         self._train_Y = train_Y.detach()
         self._fitted = True
         return self
+
 
     # ------------------------------------------------------------------
     # Forward / __call__: returns acquisition values
@@ -305,6 +328,25 @@ class AlphaPFN(AcquisitionFunction):
             x_train.float(), y_train.float(), x_test.float()
         )
         return self._head_model.criterion.mean(logits).flatten()
+
+    def posterior_mean(self, X: Tensor) -> Tensor:
+        """Returns the PPD posterior predictive mean E[f | D] at X.
+
+        Requires the base (PPD) model — pass `load_base_model=True` to
+        `from_pretrained`. Pair with `AlphaPFNPosteriorMean` and
+        `botorch.optim.optimize_acqf` to find x̂ = argmax E[f | D]
+        (the predicted optimizer, useful for inference-regret reporting).
+        """
+        if self._ppd_model is None:
+            raise RuntimeError(
+                "posterior_mean requires the base model; pass "
+                "load_base_model=True to from_pretrained()."
+            )
+        if not self._fitted:
+            raise RuntimeError("call .fit(train_X, train_Y) before posterior_mean()")
+        self._check_X_in_cube(X, where="posterior_mean")
+        logits = self._run_ppd(X)
+        return self._ppd_model.criterion.mean(logits).flatten()
 
     def _ei_from_ppd(self, X_test: Tensor) -> Tensor:
         assert self._train_Y is not None
@@ -359,3 +401,37 @@ class AlphaPFN(AcquisitionFunction):
         if acq in {"PES", "MES", "JES"}:
             return self._run_head(X)
         raise ValueError(f"Unknown acquisition: {acq!r}")
+
+
+class AlphaPFNPosteriorMean(AcquisitionFunction):
+    """Scalar acquisition returning `pfn.posterior_mean(X)`.
+
+    Drop-in for `botorch.optim.optimize_acqf` to find
+    x̂ = argmax E[f | D], i.e. the model's predicted optimizer (useful
+    for reporting inference regret in BO benchmarks).
+
+    Requires the wrapped `AlphaPFN` to have been loaded with
+    `load_base_model=True` and `.fit(...)` called.
+
+    Example:
+        from alphapfn import AlphaPFN, AlphaPFNPosteriorMean
+        from botorch.optim import optimize_acqf
+
+        pfn = AlphaPFN.from_pretrained(acquisition="JES", load_base_model=True)
+        pfn.fit(X, y_std)
+        x_hat, _ = optimize_acqf(AlphaPFNPosteriorMean(pfn),
+                                 bounds=bounds, q=1,
+                                 num_restarts=5, raw_samples=64)
+    """
+    def __init__(self, pfn: "AlphaPFN"):
+        if pfn._ppd_model is None:
+            raise RuntimeError(
+                "AlphaPFNPosteriorMean requires the base PPD model; pass "
+                "load_base_model=True to AlphaPFN.from_pretrained()."
+            )
+        super().__init__(model=pfn._ppd_model)
+        self.pfn = pfn
+
+    @t_batch_mode_transform(expected_q=1)
+    def forward(self, X: Tensor) -> Tensor:
+        return self.pfn.posterior_mean(X.squeeze(-2))

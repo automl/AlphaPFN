@@ -6,7 +6,6 @@ from typing import Any
 
 import math
 
-import numpy as np
 import torch
 from torch import nn
 
@@ -782,7 +781,7 @@ def remove_outliers(
         cut_off = data_std * n_sigma
         lower, upper = data_mean - cut_off, data_mean + cut_off
 
-        data_clean[torch.logical_or(data_clean > upper, data_clean < lower)] = np.nan
+        data_clean[torch.logical_or(data_clean > upper, data_clean < lower)] = float("nan")
         data_mean, data_std = (
             torch_nanmean(data_clean, axis=0),
             torch_nanstd(data_clean, axis=0),

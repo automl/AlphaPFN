@@ -8,7 +8,7 @@ Public surface:
 """
 from alphapfn.api import AlphaPFN, AlphaPFNPosteriorMean, ALLOWED_ACQUISITIONS
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __all__ = [
     "AlphaPFN",
     "AlphaPFNPosteriorMean",

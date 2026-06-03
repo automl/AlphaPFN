@@ -166,7 +166,32 @@
     html { scroll-behavior: smooth; }
     .results-grid img { width: 100%; height: auto; }
     .section.is-light h2 { color: #1f2937; }
-    .hero-asset { max-width: 760px; margin: 0 auto; display: block; border-radius: 0.5rem; }
+    .hero-asset { width: 100%; max-width: 760px; margin: 0 auto; display: block; border-radius: 0.5rem; }
+
+    /* ---- Mobile responsiveness ---- */
+    img { max-width: 100%; height: auto; }
+    figure { max-width: 100%; margin-left: 0; margin-right: 0; }
+    /* MathJax display equations can be wider than the viewport — let them scroll. */
+    mjx-container[display="true"],
+    mjx-container[jax="SVG"][display="true"] {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+    }
+    /* Bulma's columns default to side-by-side; on small screens collapse Why-α-PFN-style grids. */
+    @media (max-width: 768px) {
+      .container.is-max-desktop { padding-left: 1rem; padding-right: 1rem; }
+      .title.is-1 { font-size: 1.7rem !important; }
+      .title.is-3 { font-size: 1.35rem !important; }
+      .publication-title { line-height: 1.22; }
+      .publication-authors { font-size: 0.92rem !important; }
+      .publication-links .link-block { display: inline-block; margin: 0.2rem; }
+      .pip-pill { font-size: 0.82rem; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+      pre.code-block { font-size: 0.72rem; padding: 0.7rem 0.8rem; }
+      .figure-caption { font-size: 0.82rem; }
+      .hero-body { padding-left: 1rem; padding-right: 1rem; }
+      table { display: block; overflow-x: auto; }
+    }
   </style>
 </head>
 <body>
